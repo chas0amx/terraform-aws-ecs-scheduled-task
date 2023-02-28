@@ -147,6 +147,38 @@ resource "aws_ecs_task_definition" "default" {
   # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_definition_parameters.html#network_mode
   network_mode = "awsvpc"
 
+  dynamic "volume" {
+    for_each = var.volume
+    content {
+      host_path = volume.value.host_path
+      name      = volume.value.name
+
+      dynamic "docker_volume_configuration" {
+        for_each = volume.value.docker_volume_configuration != null ? [volume.value.docker_volume_configuration] : []
+        content {
+          autoprovision = docker_volume_configuration.value.autoprovision
+          driver        = docker_volume_configuration.value.driver
+          driver_opts   = docker_volume_configuration.value.driver_opts
+          labels        = docker_volume_configuration.value.labels
+          scope         = docker_volume_configuration.value.scope
+        }
+      }
+
+      dynamic "efs_volume_configuration" {
+        for_each = volume.value.efs_volume_configuration != null ? [volume.value.efs_volume_configuration] : []
+        content {
+          file_system_id = efs_volume_configuration.value.file_system_id
+          root_directory = efs_volume_configuration.value.root_directory
+          transit_encryption = efs_volume_configuration.value.transit_encryption
+          authorization_config {
+            access_point_id = efs_volume_configuration.value.authorization_config.access_point_id
+            iam             = efs_volume_configuration.value.authorization_config.iam
+          }
+        }
+      }
+    }
+  }
+
   # A mapping of tags to assign to the resource.
   tags = merge({ "Name" = var.name }, var.tags)
 }
