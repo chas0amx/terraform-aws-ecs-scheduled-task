@@ -119,6 +119,12 @@ variable "ecs_task_execution_role_arn" {
   description = "The ARN of the ECS Task Execution IAM Role."
 }
 
+variable "ecs_task_role_arn" {
+  default     = ""
+  type        = string
+  description = "The ARN of the ECS Task IAM Role."
+}
+
 variable "volume" {
   description = "A list of volume blocks that containers in your task may use."
   type = list(object({
