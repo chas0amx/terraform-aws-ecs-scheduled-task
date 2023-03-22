@@ -118,3 +118,34 @@ variable "ecs_task_execution_role_arn" {
   type        = string
   description = "The ARN of the ECS Task Execution IAM Role."
 }
+
+variable "task_role_arn" {
+  default     = ""
+  type        = string
+  description = "The ARN of the ECS Task IAM Role."
+}
+
+variable "volume" {
+  description = "A list of volume blocks that containers in your task may use."
+  type = list(object({
+    name      = string
+    host_path = string
+    docker_volume_configuration = object({
+      scope         = string
+      autoprovision = bool
+      driver        = string
+      driver_opts   = map(string)
+      labels        = map(string)
+    })
+    efs_volume_configuration = object({
+      file_system_id = string
+      root_directory = string
+      transit_encryption = string
+      authorization_config = object({
+        access_point_id = string
+        iam             = string
+      })
+    })
+  }))
+  default = []
+}
